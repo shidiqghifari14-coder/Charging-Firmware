@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#08090b" />
+  <meta name="description" content="ARJUNA EV charging control and telemetry dashboard." />
+  <title>ARJUNA Charging Control</title>
+  <link rel="icon" href="./assets/arjuna-crest.jpeg" type="image/jpeg" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="ARJUNA charging dashboard">
+      <img class="brand-crest" src="./assets/arjuna-crest.jpeg" alt="ARJUNA shield" width="48" height="48" />
+      <span class="brand-text"><span class="wordmark"><img src="./assets/arjuna-wordmark.png" alt="ARJUNA" width="610" height="283" /></span><small>ELECTRIC VEHICLE TEAM</small></span>
+    </a>
+    <nav class="top-nav" aria-label="Dashboard sections"><a href="#overview" class="active">Overview</a><a href="#telemetry">Telemetry</a><a href="#system">System</a></nav>
+    <div class="topbar-actions">
+      <span class="generation">GEN <b>15</b></span>
+      <button class="connection-pill" id="connectionButton" type="button" aria-haspopup="dialog">
+        <span class="status-light" id="connectionLight"></span>
+        <span id="connectionLabel">DEMO MODE</span>
+        <span class="chevron">⌄</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="page-heading" id="overview">
+      <div><p class="eyebrow"><span class="heading-line"></span> ENERGY MANAGEMENT</p><h1>Charging <span>station.</span></h1></div>
+      <div class="page-context"><span>FORMULA STUDENT JAPAN</span><b>ARJUNA / GEN 15</b></div>
+    </div>
+    <div class="session-bar"><span class="session-type" id="sessionType">SIMULATION SESSION</span><span id="sessionHint">Explore the controls. No hardware connected.</span><span class="session-time">SESSION TIME <b class="session-clock" id="sessionClock">00:00:00</b></span></div>
+    <section class="primary-grid" aria-label="Charging overview and controls">
+      <article class="charge-card panel">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">ACCUMULATOR / GEN 15</p>
+            <h2 id="chargeState">Ready to charge</h2>
+          </div>
+          <span class="state-badge ready" id="stateBadge">READY</span>
+        </div>
+
+        <div class="soc-area">
+          <div class="dial-wrap"><span class="dial-tag">PACK / SOC</span><div class="soc-ring" id="socRing" style="--soc: 64">
+            <div class="soc-ring-inner">
+              <strong><span id="socValue">64</span><small>%</small></strong>
+              <span>STATE OF CHARGE</span>
+            </div>
+          </div><div class="dial-scale"><span>0%</span><span>CAPACITY</span><span>100%</span></div></div>
+          <div class="charge-summary">
+            <div class="summary-value">
+              <span>OUTPUT POWER <span class="power-glyph" aria-hidden="true">↗</span></span>
+              <strong id="powerValue">0.00 <small>kW</small></strong>
+            </div>
+            <div class="power-context" id="powerContext">Standing by for your next session</div>
+            <div class="progress-caption"><span>STATE OF CHARGE</span><span id="progressCaption">64 / 100%</span></div><div class="progress-track"><span id="chargeProgress"></span></div>
+            <div class="charge-meta">
+              <span><b id="energyValue">0.00 kWh</b> delivered</span>
+              <span>Target <b id="targetSocLabel">90%</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="metrics-strip">
+          <div><span><i class="metric-mark">V</i> Pack voltage</span><strong id="voltageValue">397.8<small> V</small></strong><small class="metric-caption">Charger output</small></div>
+          <div><span><i class="metric-mark">A</i> Charge current</span><strong id="currentValue">0.0<small> A</small></strong><small class="metric-caption">Measured current</small></div>
+          <div><span><i class="metric-mark">°</i> Max temperature</span><strong id="temperatureValue">28.4<small> °C</small></strong><small class="metric-caption">Warmest cell</small></div>
+        </div>
+      </article>
+
+      <aside class="control-card panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">CHARGE CONTROL</p>
+            <h2>Session limits</h2>
+          </div>
+          <span class="lock-label">RFE <b id="rfeLabel">ARMED</b></span>
+        </div>
+
+        <label class="control-label" for="currentLimit">
+          <span><small class="control-step">01</small> Current limit</span><output id="currentLimitOutput">4.0 A</output>
+        </label>
+        <input id="currentLimit" type="range" min="1" max="6" value="4" step="1" />
+        <div class="range-labels"><span>1 A</span><span>6 A</span></div>
+
+        <label class="control-label" for="socTarget">
+          <span><small class="control-step">02</small> Target charge</span><output id="socTargetOutput">90%</output>
+        </label>
+        <input id="socTarget" type="range" min="50" max="100" value="90" step="1" />
+        <div class="range-labels"><span>50%</span><span>100%</span></div>
+
+        <label class="toggle-row">
+          <span><b>Power limit <em>1.36 kW</em></b><small>Limit charger output power</small></span>
+          <input id="powerLimit" type="checkbox" checked />
+          <i aria-hidden="true"></i>
+        </label>
+
+        <div class="control-actions">
+          <button class="primary-action" id="startButton" type="button">
+            <span class="action-icon" aria-hidden="true">↗</span><span>Start charging<small>Hold for 1 second</small></span>
+          </button>
+          <button class="stop-action" id="stopButton" type="button" disabled><span aria-hidden="true">■</span> Stop</button>
+        </div>
+        <p class="control-note" id="controlNote">Demo is active. Connect a charger to send commands.</p>
+      </aside>
+    </section>
+
+    <section class="telemetry-grid" id="telemetry" aria-label="Live telemetry">
+      <article class="chart-card panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">LIVE TELEMETRY</p>
+            <h2>Charging curve</h2>
+          </div>
+          <div class="legend"><span class="voltage-key">Voltage</span><span class="current-key">Current</span></div>
+        </div>
+        <div class="chart-readings"><div><i class="series-dot voltage-dot"></i><span>VOLTAGE</span><b id="chartVoltage">397.8 <small>V</small></b></div><div><i class="series-dot current-dot"></i><span>CURRENT</span><b id="chartCurrent">0.0 <small>A</small></b></div><span class="chart-window">LAST 60 S</span></div>
+        <div class="chart-wrap">
+          <canvas id="telemetryChart" aria-label="Voltage and current over time"></canvas>
+          <div class="chart-empty" id="chartEmpty">Waiting for telemetry samples</div>
+        </div>
+        <div class="chart-foot"><span id="chartFeed">SIMULATED TELEMETRY</span><span>Voltage · left axis <i>/</i> Current · right axis</span></div>
+      </article>
+
+      <article class="cells-card panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">CELL HEALTH</p>
+            <h2>Pack balance</h2>
+          </div>
+          <span class="health-label" id="cellDataLabel">DEMO</span>
+        </div>
+        <dl class="cell-stats">
+          <div><dt>Highest cell</dt><dd id="maxCell">4.151 V</dd></div>
+          <div><dt>Lowest cell</dt><dd id="minCell">4.137 V</dd></div>
+          <div><dt>Cell delta</dt><dd id="cellDelta">14 mV</dd></div>
+          <div><dt>Average</dt><dd id="avgCell">4.144 V</dd></div>
+        </dl>
+        <div class="cell-bars" id="cellBars" aria-label="Illustrative demo cell voltage distribution"></div><div class="cell-caption"><span id="cellCaption">ILLUSTRATIVE CELL DISTRIBUTION</span><span>V</span></div>
+      </article>
+    </section>
+
+    <section class="bottom-grid" id="system" aria-label="System status">
+      <article class="checks-card panel">
+        <div class="section-head compact">
+          <div><p class="eyebrow">INTERLOCKS</p><h2>System checks</h2></div>
+          <span class="checks-count"><b id="checkCount">6/6</b> passed</span>
+        </div>
+        <div class="checks-list" id="checksList"></div>
+      </article>
+      <article class="events-card panel">
+        <div class="section-head compact">
+          <div><p class="eyebrow">EVENT LOG</p><h2>Latest activity</h2></div>
+          <button class="text-button" id="clearLog" type="button">Clear</button>
+        </div>
+        <ol class="event-log" id="eventLog"></ol>
+      </article>
+    </section>
+    <footer class="page-footer"><div class="footer-brand"><img src="./assets/arjuna-crest.jpeg" alt="" width="32" height="32" /><span class="wordmark"><img src="./assets/arjuna-wordmark.png" alt="ARJUNA Electric Vehicle Team" width="610" height="283" /></span></div><span>ENERGY MANAGEMENT <i>/</i> GEN 15</span></footer>
+  </main>
+
+  <dialog id="connectionDialog">
+    <form method="dialog" class="dialog-card">
+      <div class="dialog-head">
+        <div><p class="eyebrow">CONNECTION</p><h2>Connect charger</h2></div>
+        <button class="close-button" value="cancel" aria-label="Close">×</button>
+      </div>
+      <div class="connection-options">
+        <button type="button" data-connect="ble"><span class="option-icon">ᛒ</span><span><b>Bluetooth LE</b><small>Direct connection near the charger</small></span><i>›</i></button>
+        <button type="button" data-connect="wifi"><span class="option-icon">⌁</span><span><b>Local Wi-Fi</b><small>ESP32 hotspot or workshop network</small></span><i>›</i></button>
+        <button type="button" data-connect="remote"><span class="option-icon">◎</span><span><b>Remote gateway</b><small>Secure HTTPS endpoint outside workshop</small></span><i>›</i></button>
+        <button type="button" data-connect="demo"><span class="option-icon">◇</span><span><b>Demo mode</b><small>Explore without hardware</small></span><i>›</i></button>
+      </div>
+      <div class="endpoint-form" id="endpointForm" hidden>
+        <label><span id="endpointLabel">Gateway URL</span><input id="endpointInput" autocomplete="url" placeholder="https://charger.example.com" /></label>
+        <label id="tokenField"><span>Access token</span><input id="tokenInput" type="password" autocomplete="off" placeholder="Stored only on this device" /></label>
+        <button class="connect-action" id="endpointConnect" type="button">CONNECT</button>
+      </div>
+      <p class="dialog-status" id="dialogStatus"></p>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
